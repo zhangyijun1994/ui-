@@ -13,7 +13,7 @@ from selenium import webdriver
 @pytest.fixture(scope='session')
 def driver():
     # 打开浏览器
-    driver = webdriver.Chrome(os.path.join(os.path.dirname(os.path.abspath(__file__)),'../chrome_driver_v78/chromedriver.exe'))
+    driver = webdriver.Chrome(os.path.join(os.path.dirname(os.path.abspath(__file__)),'../chrome_driver_v77/chromedriver.exe'))
     # 调整浏览器窗口大小
     driver.maximize_window()
     driver.implicitly_wait(10) # 设置等待时长5秒
