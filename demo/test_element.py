@@ -3,7 +3,11 @@ from time import sleep
 
 import autoit
 from selenium.webdriver import ActionChains
+from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
+
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC #定义了变量EC表示expected_conditions
 
 
 def test_input(driver):
@@ -156,3 +160,49 @@ def test_windows(driver):
         sleep(2)
         if driver.title.__contains__("京东"):  # 如果标题里包含“京东”
             break    # 终止
+
+# 嵌套切换
+def test_iframe(driver):
+    driver.get("http://192.168.1.128:8082/xuepl1/frame/main.html")
+
+    frame = driver.find_element_by_xpath("/html/frameset/frameset/frame[1]") # 进入到当前的iframe模块(左侧模块)
+    driver.switch_to.frame(frame)  # 涉及到切换模块用frame
+
+    driver.find_element_by_partial_link_text('京东').click() # 点击京东的文字按钮
+
+    # 退出当前iframe
+    driver.switch_to.parent_frame()
+    # 回到初始页面
+    # driver.switch_to.default_content()
+
+    iframe = driver.find_element_by_xpath("/html/frameset/frameset/frame[2]") # 进入到当前的iframe模块(京东模块)
+    driver.switch_to.frame(iframe) # 涉及到切换模块用frame
+
+    inpu = driver.find_element_by_xpath('//*[@id="key"]')  # 选定输入框
+    inpu.clear()
+    inpu.send_keys("手机")  # 输入文本“手机”
+
+# 显示等待
+def test_wait(driver):
+    driver.get("http://ui.yansl.com/#/loading")
+    bt = driver.find_element_by_xpath("//span[contains(text(),'指令方式')]")
+    bt.click()
+    WebDriverWait(driver,5,0.5).until(
+        EC.visibility_of_element_located((By.XPATH,'//tbody/tr[1]/td[2]/div'))
+    )
+    bg = driver.find_element_by_xpath("//tbody/tr[1]/td[2]/div")
+    print(bg.text)
+    sleep(2)
+
+# 消息提示
+def test_text(driver):
+    driver.get("http://ui.yansl.com/#/message")
+    # 定位到“自动关闭提示”中的“消息”模块.多元素+s,elements
+    buttons = driver.find_elements_by_xpath("//label[contains(text(),'自动关闭提示')]/..//span[text()='消息']")
+    buttons[0].click()  #取模块下标0（0消息）
+    # 再定位到提示信息
+    message = driver.find_element_by_xpath("//div[@role='alert']/p")
+    text = message.text # text+方法  获取展示文本
+    print(text)
+    assert"这是一条消息" in text # 断言assert "内容" in next
+    sleep(2)
